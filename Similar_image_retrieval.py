@@ -105,7 +105,7 @@ def data_generator(t,roche,disk,m1,m2,fnames,x_train,batch_size=64):
         for _ in range(batch_size):
             
             metadata_exists=False
-            print('entering metadata existing checking phase')
+            # print('entering metadata existing checking phase')
             while not metadata_exists:
                 data_triplet=random.sample(list(fnames),3)
                 f0,p0,s0=image_filename_to_fps(data_triplet[0])
@@ -116,17 +116,17 @@ def data_generator(t,roche,disk,m1,m2,fnames,x_train,batch_size=64):
                     metadata_exists=True
             # print(data_triplet,'data triplet')
             # print(fnames)
-            print('exiting metadata existing checking phase')
-            print('chosen metadata are:',data_triplet[0],data_triplet[1],data_triplet[2])
+            # print('exiting metadata existing checking phase')
+            # print('chosen metadata are:',data_triplet[0],data_triplet[1],data_triplet[2])
             
             indices_a = [i for i, elem in enumerate(fnames) if ((data_triplet[0] in elem))]
             indices_p= [i for i, elem in enumerate(fnames) if ((data_triplet[1] in elem))]
             indices_n=[i for i, elem in enumerate(fnames) if ((data_triplet[2] in elem))]
             idxs=np.array([indices_a,indices_p,indices_n])
-            print('indices of 1st',indices_a)
-            print('indices of 2nd',indices_p)
-            print('indices of 3rd',indices_n)
-            print('length of matrix t',np.shape(t),len(t))
+            # print('indices of 1st',indices_a)
+            # print('indices of 2nd',indices_p)
+            # print('indices of 3rd',indices_n)
+            # print('length of matrix t',np.shape(t),len(t))
             
             # print(np.shape(t),'shape of time')
             
@@ -185,95 +185,115 @@ def data_generator(t,roche,disk,m1,m2,fnames,x_train,batch_size=64):
             a.append(anchor)
             p.append(positive)
             n.append(negative)
-            print('Successfully loaded %d outta %d triplets'%(ii,batch_size))
-            print('Score=%d'%(i))
+            print('Successfully loaded %d outta %d triplets'%(ii+1,batch_size))
+            # print('Score=%d'%(i))
             ii+=1
         yield ([np.array(a),np.array(p),np.array(n)],np.zeros((batch_size,1)).astype("float32"))
                        
-                
-# def validation_data_generator(t2,roche2,disk2,m12,m22,fnames2,x_test,batch_size=64):
-#     while True:
-#         a2=[]
-#         p2=[]
-#         n2=[]
-#         ii=0
-#         for _ in range(batch_size):
-            
-#             data_triplet2=random.sample(list(fnames2),3)
-#             # print(data_triplet,'data triplet')
-#             # print(fnames)
-                
-#             indices_a = [i for i, elem in enumerate(fnames2) if ((data_triplet2[0] in elem))]
-#             indices_p= [i for i, elem in enumerate(fnames2) if ((data_triplet2[1] in elem))]
-#             indices_n=[i for i, elem in enumerate(fnames2) if ((data_triplet2[2] in elem))]
-#             idxs=np.array([indices_a2,indices_p2,indices_n2])
-#             # print(indices_a)
-#             # print(indices_p)
-#             # print(indices_n)
-            
-            
-#             # print(np.shape(t),'shape of time')
-            
-#             t_a=t2[indices_a]
-#             t_p=t2[indices_p]
-#             t_n=t2[indices_n]
-#             roche_a=roche2[indices_a]
-#             roche_p=roche2[indices_p]
-#             roche_n=roche2[indices_n]
-#             disk_a=disk2[indices_a]
-#             disk_p=disk2[indices_p]
-#             disk_n=disk2[indices_n]
-#             m1_a=m12[indices_a]
-#             m1_p=m12[indices_p]
-#             m1_n=m12[indices_n]
-#             m2_a=m22[indices_a]
-#             m2_p=m22[indices_p]
-#             m2_n=m22[indices_n]
-            
-#             m1_d1=(m1_a-m1_p)**2
-            
-#             m1_d2=(m1_a-m1_n)**2
-#             m2_d1=(m2_a-m2_p)**2
-#             m2_d2=(m2_a-m2_n)**2
-#             disk_d1=(disk_a-disk_p)**2
-#             disk_d2=(disk_a-disk_n)**2
-#             roche_d1=(roche_a-roche_p)**2
-#             roche_d2=(roche_a-roche_n)**2
-#             i=0
-#             if m1_d1>m1_d2:
-#                 i+=1
-#             elif m1_d1<m1_d2:
-#                 i-=1
-#             if m2_d1>m2_d2:
-#                 i+=1
-#             elif m2_d1<m2_d2:
-#                 i-=1
-#             if disk_d1>disk_d2:
-#                 i+=1
-#             elif disk_d1<disk_d2:
-#                 i-=1
-#             if roche_d1>roche_d2:
-#                 i+=1
-#             elif roche_d1<roche_d2:
-#                 i-=1
-            
-#             anchor=x_test[idxs[0][0],:,:,:]
-#             if i<=0:
-#                 positive=x_test[idxs[1][0],:,:,:]
-#                 negative=x_test[idxs[2][0],:,:,:]
-#             elif i>0:
-#                 positive=x_test[idxs[2][0],:,:,:]
-#                 negative=x_test[idxs[1][0],:,:,:]
-                
-            
-#             a2.append(anchor)
-#             p2.append(positive)
-#             n2.append(negative)
-#             print('Successfully loaded %d outta %d triplets'%(ii,batch_size))
-#             print('Score=%d'%(i))
-#             ii+=1
-#         yield ([np.array(a2),np.array(p2),np.array(n2)],np.zeros((batch_size,1)).astype("float32"))         
 
+            
+            
+            
+def validation_data_generator(t,roche,disk,m1,m2,fnames,x_train,batch_size=64):
+    while True:
+        a=[]
+        p=[]
+        n=[]
+        ii=0
+        for _ in range(batch_size):
+            
+            metadata_exists=False
+            # print('entering metadata existing checking phase')
+            while not metadata_exists:
+                data_triplet=random.sample(list(fnames),3)
+                f0,p0,s0=image_filename_to_fps(data_triplet[0])
+                
+                f1,p1,s1=image_filename_to_fps(data_triplet[1])
+                f2,p2,s2=image_filename_to_fps(data_triplet[2])
+                if does_metadata_exist(f0,s0) and does_metadata_exist(f1,s1) and does_metadata_exist(f2,s2):
+                    metadata_exists=True
+            # print(data_triplet,'data triplet')
+            # print(fnames)
+            # print('exiting metadata existing checking phase')
+            # print('chosen metadata are:',data_triplet[0],data_triplet[1],data_triplet[2])
+            
+            indices_a = [i for i, elem in enumerate(fnames) if ((data_triplet[0] in elem))]
+            indices_p= [i for i, elem in enumerate(fnames) if ((data_triplet[1] in elem))]
+            indices_n=[i for i, elem in enumerate(fnames) if ((data_triplet[2] in elem))]
+            idxs=np.array([indices_a,indices_p,indices_n])
+            # print('indices of 1st',indices_a)
+            # print('indices of 2nd',indices_p)
+            # print('indices of 3rd',indices_n)
+            # print('length of matrix t',np.shape(t),len(t))
+            
+            # print(np.shape(t),'shape of time')
+            
+            t_a=t[indices_a]  #indece_a = 9000 , len(t) =1300
+            t_p=t[indices_p]
+            t_n=t[indices_n]
+            roche_a=roche[indices_a]
+            roche_p=roche[indices_p]
+            roche_n=roche[indices_n]
+            disk_a=disk[indices_a]
+            disk_p=disk[indices_p]
+            disk_n=disk[indices_n]
+            m1_a=m1[indices_a]
+            m1_p=m1[indices_p]
+            m1_n=m1[indices_n]
+            m2_a=m2[indices_a]
+            m2_p=m2[indices_p]
+            m2_n=m2[indices_n]
+            
+            m1_d1=(m1_a-m1_p)**2
+            
+            m1_d2=(m1_a-m1_n)**2
+            m2_d1=(m2_a-m2_p)**2
+            m2_d2=(m2_a-m2_n)**2
+            disk_d1=(disk_a-disk_p)**2
+            disk_d2=(disk_a-disk_n)**2
+            roche_d1=(roche_a-roche_p)**2
+            roche_d2=(roche_a-roche_n)**2
+            i=0
+            if m1_d1>m1_d2:
+                i+=1
+            elif m1_d1<m1_d2:
+                i-=1
+            if m2_d1>m2_d2:
+                i+=1
+            elif m2_d1<m2_d2:
+                i-=1
+            if disk_d1>disk_d2:
+                i+=1
+            elif disk_d1<disk_d2:
+                i-=1
+            if roche_d1>roche_d2:
+                i+=1
+            elif roche_d1<roche_d2:
+                i-=1
+            
+            anchor=x_train[idxs[0][0],:,:,:]
+            if i<=0:
+                positive=x_train[idxs[1][0],:,:,:]
+                negative=x_train[idxs[2][0],:,:,:]
+            elif i>0:
+                positive=x_train[idxs[2][0],:,:,:]
+                negative=x_train[idxs[1][0],:,:,:]
+                
+            
+            a.append(anchor)
+            p.append(positive)
+            n.append(negative)
+            print('Successfully loaded %d outta %d triplets'%(ii+1,batch_size))
+            # print('Score=%d'%(i))
+            ii+=1
+        yield ([np.array(a),np.array(p),np.array(n)],np.zeros((batch_size,1)).astype("float32"))
+            
+            
+            
+            
+            
+            
+            
         
 def rescale_data(x,mom='0',model_name='vgg16'):  #clips, rescales linearly or logarithmically the incoming images
     if mom=='0': # I_nu
@@ -325,6 +345,19 @@ def rescale_data(x,mom='0',model_name='vgg16'):  #clips, rescales linearly or lo
     exec(string_to_execute)
     return x_rescaled
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 def load_metadata(frames,sinks,pred='roche'):
 # THe options for the predicted variable are 
 #"roche" for roche lobe in AU#
@@ -366,14 +399,30 @@ def does_metadata_exist(frame,sink):
 
 
 
-def load_data(max_num_pickles, pickles_path, desired_projections,desired_sinks):
-    #Filenames of all pictures
-    filenames=choose_pickles_wildcards(max_num_pickles=max_num_pickles,pickles_path=pickles_path)
-    # pickles_path='/groups/astro/rlk/rlk/Students/Sink_%d/movie_frame_00????/projection_%d_rv.pkl'%(,)
-    print('found ',len(filenames),' filenames')
-    # print(filenames)
-    #Initialize inputs to select samples on which training will happen
+
+
+def load_relevant_data(max_num_pickles, pickles_path, desired_projections,desired_sinks):
+    filenames=choose_pickles_wildcards(max_num_pickles=99999999,pickles_path=pickles_path)
+
+    fnames_out=[]
+
+
+
     
+    
+    for filename in filenames:
+        if not 'Sink_91/' in filename: #exclude lowres sink 91
+            if any(desired_projection in filename for desired_projection in desired_projections): #exclude unwanted projections
+                if any(desired_sink in filename for desired_sink in desired_sinks): #exclude unwanted sinks
+                    f,p,s=image_filename_to_fps(filename) #calculate fps from image filename
+                    if does_metadata_exist(f,s):   #exclude files which dont have metadta
+                        fnames_out.append(filename)       
+    if len(fnames_out)<=max_num_pickles:
+        return fnames_out
+    else:
+        return fnames_out[:max_num_pickles]
+    
+def load_data(max_num_pickles, filenames):
     frames=[] 
     projections=[]
     sinks=[]
@@ -382,31 +431,18 @@ def load_data(max_num_pickles, pickles_path, desired_projections,desired_sinks):
     x=[]
     
     
+    
     for filename in filenames:
-        # print('filename:',filename)
-        if not 'Sink_91/' in filename:  # Exclude low res sink 91 run
-            fnames.append(filename)
+        f,p,s=image_filename_to_fps(filename)
+        pic=load_pickle(filename)
+        x.append(pic)
+        frames.append(f)
+        projections.append(p)
+        sinks.append(s)
+        fnames_out.append(filename)
 
-            #Include only desired combinations of desired projections and desired sinks
     
-    for filename in fnames:
-        if any(desired_projection in filename for desired_projection in desired_projections):
-            if any(desired_sink in filename for desired_sink in desired_sinks):
-                # print(' successful filename:',filename)
-                f,p,s=image_filename_to_fps(filename)
-                if does_metadata_exist(f,s):
-                    pic=load_pickle(filename)
-                    x.append(pic)
-                    frames.append(f)
-                    projections.append(p)
-                    sinks.append(s)
-                    fnames_out.append(filename)
-                
     
-    if max_num_pickles>=len(np.array(sinks)):
-        max_num_pickles=len(np.array(sinks))
-    # print('max num pickles:',max_num_pickles)
-    # print(np.shape(all_pics))
     x=np.array(x)
     x=x.reshape((max_num_pickles,800,800))
     x2=np.zeros((max_num_pickles,800,800,3))
@@ -469,35 +505,16 @@ def model_creation(model_name,add_noise=True,noise_lvl=5,random_flip=True,archit
 def train_retrieval(model_name='vgg16', add_noise=False, noise_lvl=5, random_flip=False, pickles_path='/groups/astro/rlk/rlk/Students/Sink_91_HR/movie_frame_00????/projection_?_rv.pkl',max_num_pickles=200, epochs=1000, batch_size=12, learning_rate=0.0001 ,beta_1=0.001, beta_2=0.999, epsilon=1e-7, amsgrad=False,
 test_size=0.1,patience=10,dropout_rate=0.5,architecture='2',dense1_size=128,dense2_size=64,dense3_size=100,prediction='t',                                               train_projections=[''],train_sinks=[''],test_projections=[''],test_sinks=['']): 
     with tf.device("/GPU:0"):
-        # read X,Y data and transform it to tensorflow input format
+        # ############ STEP 1 : read data, metadata and models
+        
+        
+        fnames=load_relevant_data(max_num_pickles,pickles_path,desired_projections=train_projections,desired_sinks=train_sinks)
+        
+         #TRAIN DATA
         #x, frames , projection, sink ,filenames
-        x,f,p,s,fnames=load_data(max_num_pickles,pickles_path,desired_projections=train_projections,desired_sinks=train_sinks)
+        x,f,p,s,fnames=load_data(max_num_pickles,fnames)
         #rescaled data
         x_rescaled=rescale_data(x,mom='1',model_name=model_name) #-----------------------------------------
-        
-        
-        x2,f2,p2,s2,fnames2=load_data(max_num_pickles,pickles_path,desired_projections=test_projections,desired_sinks=test_sinks)
-        #rescaled data
-        x_rescaled2=rescale_data(x2,mom='1',model_name=model_name) #-----------------------------------------
-        
-        print('Shape of X_train, X_test:', np.shape(x),np.shape(x2))
-        
-        
-        
-        
-        
-        
-        
-        
-        #how many data did we find
-        max_num_pickles=len(f)
-        # how many steps should the network take to train on them
-        steps_per_epoch=np.ceil(max_num_pickles/batch_size) #in this setting all the data are read in one epoch
-        #optimizer
-        opt=tf.keras.optimizers.Adam(    learning_rate=learning_rate,    beta_1=beta_1,    beta_2=beta_2,    epsilon=epsilon,   amsgrad=amsgrad, name='Adam')  #------------------------
-        #reduction, sum over batch_size means that the loss is per image inference.
-        reduction='sum_over_batch_size' # "sum_over_batch_size","sum","none"  #----------------------------
-        loss=tf.keras.losses.MeanSquaredError(reduction=reduction, name="mean_squared_error")
         
         roche=load_metadata(f,s,pred='roche')
         t=load_metadata(f,s,pred='t')
@@ -506,7 +523,17 @@ test_size=0.1,patience=10,dropout_rate=0.5,architecture='2',dense1_size=128,dens
         m2=load_metadata(f,s,pred='m2')
         print('uff')
         
-   
+        
+        #VALIDATION DATA
+        fnames2=load_relevant_data(max_num_pickles,pickles_path,desired_projections=test_projections,desired_sinks=test_sinks)
+        x2,f2,p2,s2,fnames2=load_data(max_num_pickles,fnames2)
+        #rescaled data
+        x_rescaled2=rescale_data(x2,mom='1',model_name=model_name) #-----------------------------------------
+        
+        print('Shape of X_train, X_test:', np.shape(x),np.shape(x2))
+        
+        
+        
         roche2=load_metadata(f2,s2,pred='roche')
         t2=load_metadata(f2,s2,pred='t')
         disk2=load_metadata(f2,s2,pred='disk')
@@ -514,22 +541,39 @@ test_size=0.1,patience=10,dropout_rate=0.5,architecture='2',dense1_size=128,dens
         m22=load_metadata(f2,s2,pred='m2')
         
         
-
-    #     # Splitting data to test and training subsets
+        # Splitting data to test and training subsets
         x_train =x_rescaled
         x_test=x_rescaled2
         
 
-    #     # Transform to tensor quantities that tensorflow understands (and computes fast because of uint8 ).
-        # x_test = tf.convert_to_tensor(x_test, dtype=tf.uint8)
+        # Transform to tensor quantities that tensorflow understands (and computes fast because of uint8 ).
         x_train = tf.convert_to_tensor(x_train, dtype=tf.uint8)
         x_test = tf.convert_to_tensor(x_test, dtype=tf.uint8)
 
+        
+        
+        #how many data did we find
+        max_num_pickles=len(f)
+        max_num_pickles2=len(f2)
+        # how many steps should the network take to train on them
+        steps_per_epoch=np.ceil(max_num_pickles/batch_size) #in this setting all the data are read in one epoch
+        validation_steps_per_epoch=np.ceil(max_num_pickles2/batch_size) #in this setting all the data are read in one epoch
+    
+    
+    
+        #optimizer
+        opt=tf.keras.optimizers.Adam(    learning_rate=learning_rate,    beta_1=beta_1,    beta_2=beta_2,    epsilon=epsilon,   amsgrad=amsgrad, name='Adam')  #------------------------
+        #reduction, sum over batch_size means that the loss is per image inference.
+        reduction='sum_over_batch_size' # "sum_over_batch_size","sum","none"  #----------------------------
+        loss=tf.keras.losses.MeanSquaredError(reduction=reduction, name="mean_squared_error")
+        
+        
+        
+   
+        
+
+ 
     #Create the model
-      
-    
-    
-    
         model=model_creation(model_name=model_name,add_noise=add_noise,noise_lvl=noise_lvl,random_flip=random_flip,architecture=architecture,dropout_rate=dropout_rate,dense1_size=dense1_size,dense2_size=dense2_size,dense3_size=dense3_size)
         triplet_model_a=Input((800,800,3))
         triplet_model_p=Input((800,800,3))
@@ -539,20 +583,48 @@ test_size=0.1,patience=10,dropout_rate=0.5,architecture='2',dense1_size=128,dens
         triplet_model.summary()
         triplet_model.compile(loss=triplet_loss,optimizer="adam")
 
-#         # For faster I/O we use the tensorflow object "tf.data.Dataset" we cant do this here since we need a generator that smartly chooses the relationship between the data
-#         
-
+        
+        
+        
+        
 #         # Here the training happens. Model parameters are updates, and after each epoch ( iteration through all data), the program validates the 
 #         # performance of the n.n. on images it has never been trained upon (validation_data). Training info are saved on object history.
-        callback1=tf.keras.callbacks.EarlyStopping(monitor="val_loss",patience=patience)
+
+        # callback1=tf.keras.callbacks.EarlyStopping(monitor="val_loss",patience=patience)
         callback2=tf.keras.callbacks.ModelCheckpoint(    filepath='data/scratch/rami/logs/',    save_weights_only=True,    monitor='val_loss',    mode='min',    save_best_only=True)
         # callback3=tf.keras.callbacks.ReduceLROnPlateau(    monitor="val_loss",    factor=0.9,    patience=4,    verbose=0,    mode="auto",    min_delta=0.0001,    cooldown=0,    min_lr=0)
         callback4=tf.keras.callbacks.TerminateOnNaN()
+        
+        
+        
+        
+        
+        
         # history=triplet_model.fit(data_generator(batch_size=batch_size),steps_per_epoch=steps_per_epoch ,validation_data=validation_data_generator(batch_size=batch_size), epochs=epochs,batch_size=batch_size,validation_steps=steps_per_epoch,callbacks=[callback1,callback2,callback3,callback4])
         generator=data_generator(t=t,roche=roche,disk=disk,m1=m1,m2=m2,fnames=fnames,x_train=x_train,batch_size=batch_size)
-        # validation_generator=validation_data_generator(batch_size=batch_size,x_test=x_test,fnames2=fnames2,t2=t2,roche2=roche2,disk2=disk2,m12=m12,m22=m22)
-        history=triplet_model.fit(generator,steps_per_epoch=steps_per_epoch, epochs=epochs,callbacks=[callback1,callback2,callback4])
+        validation_generator=validation_data_generator(t=t2,roche=roche2,disk=disk2,m1=m12,m2=m22,fnames=fnames2,x_train=x_test,batch_size=batch_size)
+        
+        
+        
+        
+        history=triplet_model.fit_generator(generator,steps_per_epoch=steps_per_epoch,validation_data=validation_generator,validation_steps=validation_steps_per_epoch,epochs=epochs,callbacks=[callback2,callback4])
 
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        #SAVING
+        
+        
+        
+        
         extra_title=str(model_name)+'_'+str(random_flip)+'_'+str(learning_rate)+'_'+str(add_noise)+'_'+str(architecture)+'_'+str(dropout_rate)+'_'+str(dense1_size)+'_'+str(dense2_size)
 
     #     # save the model parameters
@@ -580,8 +652,7 @@ test_size=0.1,patience=10,dropout_rate=0.5,architecture='2',dense1_size=128,dens
 
     #     #delete variables for memory reasons
         del model
-        del train_dataset
-        del test_dataset
+        
         del x_train
         del x_test
         del y_train
@@ -626,7 +697,7 @@ dense1_sizes=[128,256]
 dense2_sizes=[64,128]
 dense3_size=100
 noise_lvl=3
-max_num_pickles=100000
+max_num_pickles=200
 test_size=0.1
 batch_size=16
 patience=25
@@ -634,7 +705,7 @@ beta_1=0.001
 beta_2=0.999
 epsilon=1e-07
 amsgrad=False
-epochs=50
+epochs=100
 train_projections=['projection_0','projection_1']
 train_sinks=['Sink_49']
 test_projections=['projection_2']

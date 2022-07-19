@@ -418,7 +418,7 @@ dropout_rates=[0,0.25,0.5,0.75]
 dense1_sizes=[64,128,256]
 dense2_sizes=[32,64,128]
 noise_lvl=3
-max_num_pickles=1000000
+max_num_pickles=100
 test_size=0.1
 batch_size=20
 patience=15
@@ -452,3 +452,4 @@ for model_name in model_names:
                                                         train_projections=train_projections,train_sinks=train_sinks,test_projections=test_projections,test_sinks=test_sinks) # optimizer options 
                                     except:
                                         print('Something went wrong with the running of one of the models, its ok though. ')
+                                        
