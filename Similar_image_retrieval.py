@@ -96,105 +96,11 @@ def triplet_loss(y_true,y_pred):
     return K.mean(K.abs(probs[0]+K.abs(1.0-probs[1])))
         
     
-def data_generator(t,roche,disk,m1,m2,fnames,x_train,batch_size=64):
-    while True:
-        a=[]
-        p=[]
-        n=[]
-        ii=0
-        for _ in range(batch_size):
-            
-            metadata_exists=False
-            # print('entering metadata existing checking phase')
-            while not metadata_exists:
-                data_triplet=random.sample(list(fnames),3)
-                f0,p0,s0=image_filename_to_fps(data_triplet[0])
-                
-                f1,p1,s1=image_filename_to_fps(data_triplet[1])
-                f2,p2,s2=image_filename_to_fps(data_triplet[2])
-                if does_metadata_exist(f0,s0) and does_metadata_exist(f1,s1) and does_metadata_exist(f2,s2):
-                    metadata_exists=True
-            # print(data_triplet,'data triplet')
-            # print(fnames)
-            # print('exiting metadata existing checking phase')
-            # print('chosen metadata are:',data_triplet[0],data_triplet[1],data_triplet[2])
-            
-            indices_a = [i for i, elem in enumerate(fnames) if ((data_triplet[0] in elem))]
-            indices_p= [i for i, elem in enumerate(fnames) if ((data_triplet[1] in elem))]
-            indices_n=[i for i, elem in enumerate(fnames) if ((data_triplet[2] in elem))]
-            idxs=np.array([indices_a,indices_p,indices_n])
-            # print('indices of 1st',indices_a)
-            # print('indices of 2nd',indices_p)
-            # print('indices of 3rd',indices_n)
-            # print('length of matrix t',np.shape(t),len(t))
-            
-            # print(np.shape(t),'shape of time')
-            
-            t_a=t[indices_a]  #indece_a = 9000 , len(t) =1300
-            t_p=t[indices_p]
-            t_n=t[indices_n]
-            roche_a=roche[indices_a]
-            roche_p=roche[indices_p]
-            roche_n=roche[indices_n]
-            disk_a=disk[indices_a]
-            disk_p=disk[indices_p]
-            disk_n=disk[indices_n]
-            m1_a=m1[indices_a]
-            m1_p=m1[indices_p]
-            m1_n=m1[indices_n]
-            m2_a=m2[indices_a]
-            m2_p=m2[indices_p]
-            m2_n=m2[indices_n]
-            
-            m1_d1=(m1_a-m1_p)**2
-            
-            m1_d2=(m1_a-m1_n)**2
-            m2_d1=(m2_a-m2_p)**2
-            m2_d2=(m2_a-m2_n)**2
-            disk_d1=(disk_a-disk_p)**2
-            disk_d2=(disk_a-disk_n)**2
-            roche_d1=(roche_a-roche_p)**2
-            roche_d2=(roche_a-roche_n)**2
-            i=0
-            if m1_d1>m1_d2:
-                i+=1
-            elif m1_d1<m1_d2:
-                i-=1
-            if m2_d1>m2_d2:
-                i+=1
-            elif m2_d1<m2_d2:
-                i-=1
-            if disk_d1>disk_d2:
-                i+=1
-            elif disk_d1<disk_d2:
-                i-=1
-            if roche_d1>roche_d2:
-                i+=1
-            elif roche_d1<roche_d2:
-                i-=1
-            
-            anchor=x_train[idxs[0][0],:,:,:]
-            if i<=0:
-                positive=x_train[idxs[1][0],:,:,:]
-                negative=x_train[idxs[2][0],:,:,:]
-            elif i>0:
-                positive=x_train[idxs[2][0],:,:,:]
-                negative=x_train[idxs[1][0],:,:,:]
-                
-            
-            a.append(anchor)
-            p.append(positive)
-            n.append(negative)
-            print('Successfully loaded %d outta %d triplets'%(ii+1,batch_size))
-            # print('Score=%d'%(i))
-            ii+=1
-        yield ([np.array(a),np.array(p),np.array(n)],np.zeros((batch_size,1)).astype("float32"))
+
                        
 
-            
-            
-            
-def validation_data_generator(t,roche,disk,m1,m2,fnames,x_train,batch_size=64):
+           
+def data_generator(t,roche,disk,m1,m2,fnames,batch_size=64,model_name=''):
     while True:
         a=[]
         p=[]
@@ -207,87 +113,266 @@ def validation_data_generator(t,roche,disk,m1,m2,fnames,x_train,batch_size=64):
             while not metadata_exists:
                 data_triplet=random.sample(list(fnames),3)
                 f0,p0,s0=image_filename_to_fps(data_triplet[0])
-                
                 f1,p1,s1=image_filename_to_fps(data_triplet[1])
                 f2,p2,s2=image_filename_to_fps(data_triplet[2])
+                
+                
+                
+             
+                
                 if does_metadata_exist(f0,s0) and does_metadata_exist(f1,s1) and does_metadata_exist(f2,s2):
                     metadata_exists=True
+                    x,aa1,aa2,aa3,aa4=load_data(max_num_pickles, data_triplet)
+                    x=rescale_data(x,mom='1',model_name=model_name)
+                
             # print(data_triplet,'data triplet')
             # print(fnames)
             # print('exiting metadata existing checking phase')
             # print('chosen metadata are:',data_triplet[0],data_triplet[1],data_triplet[2])
             
             indices_a = [i for i, elem in enumerate(fnames) if ((data_triplet[0] in elem))]
-            indices_p= [i for i, elem in enumerate(fnames) if ((data_triplet[1] in elem))]
-            indices_n=[i for i, elem in enumerate(fnames) if ((data_triplet[2] in elem))]
-            idxs=np.array([indices_a,indices_p,indices_n])
+            indices_1= [i for i, elem in enumerate(fnames) if ((data_triplet[1] in elem))]
+            indices_2=[i for i, elem in enumerate(fnames) if ((data_triplet[2] in elem))]
+            idxs=np.array([indices_a,indices_1,indices_2])
             # print('indices of 1st',indices_a)
-            # print('indices of 2nd',indices_p)
-            # print('indices of 3rd',indices_n)
+            # print('indices of 2nd',indices_1)
+            # print('indices of 3rd',indices_2)
             # print('length of matrix t',np.shape(t),len(t))
             
             # print(np.shape(t),'shape of time')
             
             t_a=t[indices_a]  #indece_a = 9000 , len(t) =1300
-            t_p=t[indices_p]
-            t_n=t[indices_n]
+            t_1=t[indices_1]
+            t_2=t[indices_2]
+            
+            ts=np.array([t_a,t_1,t_2])
+            isnan=np.isnan(ts)
+            isinf=np.isinf(ts)
+            if all(isinf==False) and all(isnan==False) and (t_a!=0):
+                score_t1=np.abs(t_a-t_1)/(t_1+t_a)
+                score_t2=np.abs(t_a-t_2)/(t_2+t_a)
+                
+                score_t= score_t1-score_t2
+            else:
+                score_t=0
+            
+            
             roche_a=roche[indices_a]
-            roche_p=roche[indices_p]
-            roche_n=roche[indices_n]
+            roche_1=roche[indices_1]
+            roche_2=roche[indices_2]
+            roches=np.array([roche_a,roche_1,roche_2])
+            isnan=np.isnan(roches)
+            isinf=np.isinf(roches)
+            if all(isinf==False) and all(isnan==False) and (roche_a!=0):
+                score_roche1=np.abs(roche_a-roche_1)/(roche_1+roche_a)
+                score_roche2=np.abs(roche_a-roche_2)/(roche_2+roche_a)
+                score_roche= score_roche1-score_roche2
+            else:
+                score_roche=0            
+
+            
             disk_a=disk[indices_a]
-            disk_p=disk[indices_p]
-            disk_n=disk[indices_n]
+            disk_1=disk[indices_1]
+            disk_2=disk[indices_2]
+            disks=np.array([disk_a,disk_1,disk_2])
+            isnan=np.isnan(disks)
+            isinf=np.isinf(disks)
+            if all(isinf==False) and all(isnan==False) and (disk_a!=0):
+                score_disk1=np.abs(disk_a-disk_1)/(disk_1+disk_a)
+                score_disk2=np.abs(disk_a-disk_2)/(disk_2+disk_a)
+                score_disk= score_disk1-score_disk2
+            else:
+                score_disk=0
+            
+            
             m1_a=m1[indices_a]
-            m1_p=m1[indices_p]
-            m1_n=m1[indices_n]
+            m1_1=m1[indices_1]
+            m1_2=m1[indices_2]
+            m1s=np.array([m1_a,m1_1,m1_2])
+            isnan=np.isnan(m1s)
+            isinf=np.isinf(m1s)
+            if all(isinf==False) and all(isnan==False) and (m1_a!=0):
+                score_m11=np.abs(m1_a-m1_1)/(m1_1+m1_a)
+                score_m12=np.abs(m1_a-m1_2)/(m1_2+m1_a)
+                
+                score_m1= score_m11-score_m12
+            else:
+                score_m1=0
+            
             m2_a=m2[indices_a]
-            m2_p=m2[indices_p]
-            m2_n=m2[indices_n]
+            m2_1=m2[indices_1]
+            m2_2=m2[indices_2]
+            m2s=np.array([m2_a,m2_1,m2_2])
+            isnan=np.isnan(m2s)
+            isinf=np.isinf(m2s)
+            if all(isinf==False) and all(isnan==False) and (m2_a!=0):
+                score_m21=np.abs(m2_a-m2_1)/(m2_1+m2_a)
+                score_m22=np.abs(m2_a-m2_2)/(m2_2+m2_a)
+                
+                score_m2= score_m21-score_m22
+            else:
+                score_m2=0
+          
+                        
+            score=score_t+score_roche+score_disk+score_m1+score_m2
             
-            m1_d1=(m1_a-m1_p)**2
-            
-            m1_d2=(m1_a-m1_n)**2
-            m2_d1=(m2_a-m2_p)**2
-            m2_d2=(m2_a-m2_n)**2
-            disk_d1=(disk_a-disk_p)**2
-            disk_d2=(disk_a-disk_n)**2
-            roche_d1=(roche_a-roche_p)**2
-            roche_d2=(roche_a-roche_n)**2
-            i=0
-            if m1_d1>m1_d2:
-                i+=1
-            elif m1_d1<m1_d2:
-                i-=1
-            if m2_d1>m2_d2:
-                i+=1
-            elif m2_d1<m2_d2:
-                i-=1
-            if disk_d1>disk_d2:
-                i+=1
-            elif disk_d1<disk_d2:
-                i-=1
-            if roche_d1>roche_d2:
-                i+=1
-            elif roche_d1<roche_d2:
-                i-=1
-            
-            anchor=x_train[idxs[0][0],:,:,:]
-            if i<=0:
-                positive=x_train[idxs[1][0],:,:,:]
-                negative=x_train[idxs[2][0],:,:,:]
-            elif i>0:
-                positive=x_train[idxs[2][0],:,:,:]
-                negative=x_train[idxs[1][0],:,:,:]
+            anchor=x[0,:,:,:]
+            if score<=0:
+                positive=x[1,:,:,:]
+                negative=x[2,:,:,:]
+            elif score>0:
+                positive=x[2,:,:,:]
+                negative=x[1,:,:,:]
                 
             
             a.append(anchor)
             p.append(positive)
             n.append(negative)
-            print('Successfully loaded %d outta %d triplets'%(ii+1,batch_size))
-            # print('Score=%d'%(i))
+            # print('Successfully loaded %d outta %d triplets'%(ii+1,batch_size))
+            # print('ts,roches,disks,m1s,m2s',ts,roches,disks,m1s,m2s)
+            print('Score=%1.2f'%(score))
             ii+=1
         yield ([np.array(a),np.array(p),np.array(n)],np.zeros((batch_size,1)).astype("float32"))
+        
+        
+def validation_data_generator(t,roche,disk,m1,m2,fnames,batch_size=64,model_name=''):
+    while True:
+        a=[]
+        p=[]
+        n=[]
+        ii=0
+        for _ in range(batch_size):
             
+            metadata_exists=False
+            # print('entering metadata existing checking phase')
+            while not metadata_exists:
+                data_triplet=random.sample(list(fnames),3)
+                f0,p0,s0=image_filename_to_fps(data_triplet[0])
+                f1,p1,s1=image_filename_to_fps(data_triplet[1])
+                f2,p2,s2=image_filename_to_fps(data_triplet[2])
+                
+                
+                
+             
+                
+                if does_metadata_exist(f0,s0) and does_metadata_exist(f1,s1) and does_metadata_exist(f2,s2):
+                    metadata_exists=True
+                    x,aa1,aa2,aa3,aa4=load_data(max_num_pickles, data_triplet)
+                    x=rescale_data(x,mom='1',model_name=model_name)
+                
+            # print(data_triplet,'data triplet')
+            # print(fnames)
+            # print('exiting metadata existing checking phase')
+            # print('chosen metadata are:',data_triplet[0],data_triplet[1],data_triplet[2])
+            
+            indices_a = [i for i, elem in enumerate(fnames) if ((data_triplet[0] in elem))]
+            indices_1= [i for i, elem in enumerate(fnames) if ((data_triplet[1] in elem))]
+            indices_2=[i for i, elem in enumerate(fnames) if ((data_triplet[2] in elem))]
+            idxs=np.array([indices_a,indices_1,indices_2])
+            # print('indices of 1st',indices_a)
+            # print('indices of 2nd',indices_1)
+            # print('indices of 3rd',indices_2)
+            # print('length of matrix t',np.shape(t),len(t))
+            
+            # print(np.shape(t),'shape of time')
+            
+            t_a=t[indices_a]  #indece_a = 9000 , len(t) =1300
+            t_1=t[indices_1]
+            t_2=t[indices_2]
+            
+            ts=np.array([t_a,t_1,t_2])
+            isnan=np.isnan(ts)
+            isinf=np.isinf(ts)
+            if all(isinf==False) and all(isnan==False) and (t_a!=0):
+                score_t1=np.abs(t_a-t_1)/(t_1+t_a)
+                score_t2=np.abs(t_a-t_2)/(t_2+t_a)
+                
+                score_t= score_t1-score_t2
+            else:
+                score_t=0
+            
+            
+            roche_a=roche[indices_a]
+            roche_1=roche[indices_1]
+            roche_2=roche[indices_2]
+            score_roche= (np.abs(roche_a-roche_1)-np.abs(roche_a-roche_2))/roche_a
+            roches=np.array([roche_a,roche_1,roche_2])
+            isnan=np.isnan(roches)
+            isinf=np.isinf(roches)
+            if all(isinf==False) and all(isnan==False) and (roche_a!=0):
+                score_roche1=np.abs(roche_a-roche_1)/(roche_1+roche_a)
+                score_roche2=np.abs(roche_a-roche_2)/(roche_2+roche_a)
+                score_roche= score_roche1-score_roche2
+            else:
+                score_roche=0            
+
+            
+            disk_a=disk[indices_a]
+            disk_1=disk[indices_1]
+            disk_2=disk[indices_2]
+            
+            score_disk= (np.abs(disk_a-disk_1)-np.abs(disk_a-disk_2))/disk_a
+            disks=np.array([disk_a,disk_1,disk_2])
+            isnan=np.isnan(disks)
+            isinf=np.isinf(disks)
+            if all(isinf==False) and all(isnan==False) and (disk_a!=0):
+                score_disk1=np.abs(disk_a-disk_1)/(disk_1+disk_a)
+                score_disk2=np.abs(disk_a-disk_2)/(disk_2+disk_a)
+                score_disk= score_disk1-score_disk2
+            else:
+                score_disk=0
+            
+            
+            m1_a=m1[indices_a]
+            m1_1=m1[indices_1]
+            m1_2=m1[indices_2]
+            score_m1= (np.abs(m1_a-m1_1)-np.abs(m1_a-m1_2))/m1_a
+            m1s=np.array([m1_a,m1_1,m1_2])
+            isnan=np.isnan(m1s)
+            isinf=np.isinf(m1s)
+            if all(isinf==False) and all(isnan==False) and (m1_a!=0):
+                score_m11=np.abs(m1_a-m1_1)/(m1_1+m1_a)
+                score_m12=np.abs(m1_a-m1_2)/(m1_2+m1_a)
+                
+                score_m1= score_m11-score_m12
+            else:
+                score_m1=0
+            
+            m2_a=m2[indices_a]
+            m2_1=m2[indices_1]
+            m2_2=m2[indices_2]
+            score_m2= (np.abs(m2_a-m2_1)-np.abs(m2_a-m2_2))/m2_a
+            m2s=np.array([m2_a,m2_1,m2_2])
+            isnan=np.isnan(m2s)
+            isinf=np.isinf(m2s)
+            if all(isinf==False) and all(isnan==False) and (m2_a!=0):
+                score_m21=np.abs(m2_a-m2_1)/(m2_1+m2_a)
+                score_m22=np.abs(m2_a-m2_2)/(m2_2+m2_a)
+                
+                score_m2= score_m21-score_m22
+            else:
+                score_m2=0
+          
+                        
+            score=score_t+score_roche+score_disk+score_m1+score_m2
+            
+            anchor=x[0,:,:,:]
+            if score<=0:
+                positive=x[1,:,:,:]
+                negative=x[2,:,:,:]
+            elif score>0:
+                positive=x[2,:,:,:]
+                negative=x[1,:,:,:]
+                
+            
+            a.append(anchor)
+            p.append(positive)
+            n.append(negative)
+            # print('Successfully loaded %d outta %d triplets'%(ii+1,batch_size))
+            # print('ts,roches,disks,m1s,m2s',ts,roches,disks,m1s,m2s)
+            print('Score=%1.2f'%(score))
+            ii+=1
+        yield ([np.array(a),np.array(p),np.array(n)],np.zeros((batch_size,1)).astype("float32"))
             
             
             
@@ -387,6 +472,9 @@ def load_metadata(frames,sinks,pred='roche'):
             elif pred=='m':
                 result=np.array(3000.0*rsink_file['m'][sink_tag])+np.array(3000.0*rsink_file['m'][secondary_sink_tag])
                 output_metadata.append(result)
+            elif pred=='separation':
+                result=np.array(separation) #in AU
+                output_metadata.append(result)
     
     return np.array(output_metadata)
 
@@ -422,33 +510,37 @@ def load_relevant_data(max_num_pickles, pickles_path, desired_projections,desire
     else:
         return fnames_out[:max_num_pickles]
     
-def load_data(max_num_pickles, filenames):
+def load_data(max_num_pickles, filenames,include_x=True):
     frames=[] 
     projections=[]
     sinks=[]
     fnames=[]
     fnames_out=[]
-    x=[]
+    if include_x:
+        x=[]
     
     
     
     for filename in filenames:
         f,p,s=image_filename_to_fps(filename)
-        pic=load_pickle(filename)
-        x.append(pic)
+        if include_x:
+            pic=load_pickle(filename)
+            x.append(pic)
         frames.append(f)
         projections.append(p)
         sinks.append(s)
         fnames_out.append(filename)
 
     
-    
-    x=np.array(x)
-    x=x.reshape((max_num_pickles,800,800))
-    x2=np.zeros((max_num_pickles,800,800,3))
-    x2[:,:,:,0]=x2[:,:,:,1]=x2[:,:,:,2]=x
-    x2=x2.astype("float32")
-    return x2,frames,projections,sinks,fnames_out
+    if include_x:
+        x=np.array(x)
+        x=x.reshape((len(filenames),800,800))
+        x2=np.zeros((len(filenames),800,800,3))
+        x2[:,:,:,0]=x2[:,:,:,1]=x2[:,:,:,2]=x
+        x2=x2.astype("float32")
+        return x2,frames,projections,sinks,fnames_out
+    else:
+        return frames,projections,sinks,fnames_out
 
 
 
@@ -503,18 +595,19 @@ def model_creation(model_name,add_noise=True,noise_lvl=5,random_flip=True,archit
 
 
 def train_retrieval(model_name='vgg16', add_noise=False, noise_lvl=5, random_flip=False, pickles_path='/groups/astro/rlk/rlk/Students/Sink_91_HR/movie_frame_00????/projection_?_rv.pkl',max_num_pickles=200, epochs=1000, batch_size=12, learning_rate=0.0001 ,beta_1=0.001, beta_2=0.999, epsilon=1e-7, amsgrad=False,
-test_size=0.1,patience=10,dropout_rate=0.5,architecture='2',dense1_size=128,dense2_size=64,dense3_size=100,prediction='t',                                               train_projections=[''],train_sinks=[''],test_projections=[''],test_sinks=['']): 
+test_size=0.1,patience=10,dropout_rate=0.5,architecture='2',dense1_size=128,dense2_size=64,dense3_size=100,train_projections=[''],train_sinks=[''],test_projections=[''],test_sinks=['']): 
     with tf.device("/GPU:0"):
         # ############ STEP 1 : read data, metadata and models
         
         
-        fnames=load_relevant_data(max_num_pickles,pickles_path,desired_projections=train_projections,desired_sinks=train_sinks)
-        
+        fnames=load_relevant_data(max_num_pickles=999999,pickles_path=pickles_path,desired_projections=train_projections,desired_sinks=train_sinks)
+        fnames_lim=min(max_num_pickles,len(fnames))
+        random.shuffle(fnames)
+        fnames=fnames[:fnames_lim]
          #TRAIN DATA
         #x, frames , projection, sink ,filenames
-        x,f,p,s,fnames=load_data(max_num_pickles,fnames)
+        f,p,s,fnames=load_data(max_num_pickles,fnames,include_x=False)
         #rescaled data
-        x_rescaled=rescale_data(x,mom='1',model_name=model_name) #-----------------------------------------
         
         roche=load_metadata(f,s,pred='roche')
         t=load_metadata(f,s,pred='t')
@@ -525,12 +618,13 @@ test_size=0.1,patience=10,dropout_rate=0.5,architecture='2',dense1_size=128,dens
         
         
         #VALIDATION DATA
-        fnames2=load_relevant_data(max_num_pickles,pickles_path,desired_projections=test_projections,desired_sinks=test_sinks)
-        x2,f2,p2,s2,fnames2=load_data(max_num_pickles,fnames2)
-        #rescaled data
-        x_rescaled2=rescale_data(x2,mom='1',model_name=model_name) #-----------------------------------------
+        fnames2=load_relevant_data(max_num_pickles=9999,pickles_path=pickles_path,desired_projections=test_projections,desired_sinks=test_sinks)
+        fnames2_lim=min(max_num_pickles,len(fnames2))
+        random.shuffle(fnames2)
+        fnames2=fnames2[:fnames2_lim]
         
-        print('Shape of X_train, X_test:', np.shape(x),np.shape(x2))
+        f2,p2,s2,fnames2=load_data(max_num_pickles,fnames2,include_x=False)
+        #rescaled data
         
         
         
@@ -541,15 +635,7 @@ test_size=0.1,patience=10,dropout_rate=0.5,architecture='2',dense1_size=128,dens
         m22=load_metadata(f2,s2,pred='m2')
         
         
-        # Splitting data to test and training subsets
-        x_train =x_rescaled
-        x_test=x_rescaled2
-        
-
-        # Transform to tensor quantities that tensorflow understands (and computes fast because of uint8 ).
-        x_train = tf.convert_to_tensor(x_train, dtype=tf.uint8)
-        x_test = tf.convert_to_tensor(x_test, dtype=tf.uint8)
-
+      
         
         
         #how many data did we find
@@ -601,8 +687,8 @@ test_size=0.1,patience=10,dropout_rate=0.5,architecture='2',dense1_size=128,dens
         
         
         # history=triplet_model.fit(data_generator(batch_size=batch_size),steps_per_epoch=steps_per_epoch ,validation_data=validation_data_generator(batch_size=batch_size), epochs=epochs,batch_size=batch_size,validation_steps=steps_per_epoch,callbacks=[callback1,callback2,callback3,callback4])
-        generator=data_generator(t=t,roche=roche,disk=disk,m1=m1,m2=m2,fnames=fnames,x_train=x_train,batch_size=batch_size)
-        validation_generator=validation_data_generator(t=t2,roche=roche2,disk=disk2,m1=m12,m2=m22,fnames=fnames2,x_train=x_test,batch_size=batch_size)
+        generator=data_generator(t=t,roche=roche,disk=disk,m1=m1,m2=m2,fnames=fnames,batch_size=batch_size,model_name=model_name)
+        validation_generator=validation_data_generator(t=t2,roche=roche2,disk=disk2,m1=m12,m2=m22,fnames=fnames2,batch_size=batch_size,model_name=model_name)
         
         
         
@@ -652,15 +738,8 @@ test_size=0.1,patience=10,dropout_rate=0.5,architecture='2',dense1_size=128,dens
 
     #     #delete variables for memory reasons
         del model
-        
-        del x_train
-        del x_test
-        del y_train
-        del y_test
         del history
-        del x
-        del y
-        del f,p,s
+
         # Here, one can project the high dimensional space to 2 dimensions, to observe how well has the net seperated learnt to calculate distinguish-
         # able features.
 
@@ -681,9 +760,8 @@ model_names=[  'DenseNet121', 'DenseNet169',             'DenseNet201']
 # model_names=['EfficientNetB0','EfficientNetB1','EfficientNetB2','EfficientNetB3','EfficientNetB4','EfficientNetB5','EfficientNetB6','EfficientNetB7','EfficientNetV2B0','EfficientNetV2B1','EfficientNetV2B2','EfficientNetV2B3','EfficientNetV2L','EfficientNetV2M','EfficientNetV2S']
 # model_names=['InceptionResNetV2','InceptionV3','MobileNet','MobileNetV2','MobileNetV3Large','ResNet152V2','ResNet50','ResNet50V2','ResNetRS101','ResNetRS152','ResNetRS200',   'vgg16','vgg19','Xception']
 
-prediction='t'
 random_flips=[True]
-
+optical='thin'  #'thick'
 learning_rates=[1e-5]
 
 add_noises=[False]
@@ -697,7 +775,7 @@ dense1_sizes=[128,256]
 dense2_sizes=[64,128]
 dense3_size=100
 noise_lvl=3
-max_num_pickles=200
+max_num_pickles=50
 test_size=0.1
 batch_size=16
 patience=25
@@ -705,14 +783,14 @@ beta_1=0.001
 beta_2=0.999
 epsilon=1e-07
 amsgrad=False
-epochs=100
+epochs=10
 train_projections=['projection_0','projection_1']
 train_sinks=['Sink_49']
 test_projections=['projection_2']
 test_sinks=['Sink_91_HR']
 
 # learning_rates=[0.01]
-train_retrieval(model_name='vgg16',prediction='t', #model options
+train_retrieval(model_name='vgg16', #model options
                                      add_noise=False, noise_lvl= noise_lvl, random_flip=False, # image augmentation options
                                      pickles_path='/groups/astro/rlk/rlk/Students/Sink_*/movie_frame_00????/projection_?_rv.pkl',max_num_pickles=max_num_pickles, #image directory options
                                      test_size=0,epochs=epochs, batch_size=10,patience=patience, # training options
@@ -727,9 +805,4 @@ train_retrieval(model_name='vgg16',prediction='t', #model options
 #                     for dropout_rate in dropout_rates:
 #                         for dense1_size in dense1_sizes:
 #                             for dense2_size in dense2_sizes:
-#                                 print('running!')
-#                                 train_retrieval(model_name=model_name,prediction=prediction, #model options
-#                                      add_noise=add_noise, noise_lvl= noise_lvl, random_flip=random_flip, # image augmentation options
-#                                      pickles_path='/groups/astro/rlk/rlk/Students/Sink_91_HR/movie_frame_00????/projection_?_rv.pkl',max_num_pickles=max_num_pickles, #image directory options
-#                                      test_size=test_size,epochs=epochs, batch_size=batch_size,patience=patience, # training options
-#                                      learning_rate=learning_rate , beta_1=beta_1,beta_2=beta_2,epsilon=epsilon,amsgrad=amsgrad,dropout_rate=dropout_rate,architecture=architecture,dense1_size=dense1_size,dense2_size=dense2_size,dense3_size=dense3_size) # optimizer options 
+#                                 
